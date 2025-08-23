@@ -12,33 +12,48 @@
  */
 class Solution {
 public:
-    TreeNode* prevNode = NULL;
-    TreeNode* first = NULL;
-    TreeNode* second = NULL;
-
-    void inorder(TreeNode* root) {
-        if (root == NULL) {
-            return;
-        }
-
-        inorder(root->left);
-        if (prevNode != NULL && prevNode->val > root->val) {
-            if (first == NULL) {
-                first = prevNode;
-            }
-
-            second = root;
-        }
-
-        prevNode = root;
-        inorder(root->right);
-    }
-
     void recoverTree(TreeNode* root) {
-        inorder(root);
+        TreeNode* first = NULL;
+        TreeNode* second = NULL;
+        TreeNode* prevNode = NULL;
 
-        int temp = first->val;
-        first->val = second->val;
-        second->val = temp;
+        while (root != NULL) {
+            if (root->left == NULL) {
+                if (prevNode != NULL && prevNode->val > root->val) {
+                    if (first == NULL) {
+                        first = prevNode;
+                    }
+                    second = root;
+                }
+                prevNode = root;
+                root = root->right;
+            } else {
+                TreeNode* IP = root->left;
+                while (IP->right != NULL && IP->right != root) {
+                    IP = IP->right;
+                }
+
+                if (IP->right == NULL) {
+                    IP->right = root;
+                    root = root->left;
+                } else {
+                    if (prevNode != NULL && prevNode->val > root->val) {
+                        if (first == NULL) {
+                            first = prevNode;
+                        }
+                        second = root;
+                    }
+                    prevNode = root;
+                    IP->right = NULL;
+                    root = root->right;
+                }
+            }
+        }
+
+        if (first != NULL && second != NULL) {
+            int temp = first->val;
+            first->val = second->val;
+            second->val = temp;
+        }
     }
 };
